@@ -21,20 +21,17 @@ A fully automated test script used to verify the correctness of clean_log.sh.
 
 It includes four core test cases:
 
-Normal Archiving: Simulates disk usage exceeding the limit to verify the archiving and deletion functionality.
+1）Normal Archiving: Simulates disk usage exceeding the limit to verify the archiving and deletion functionality.
 
-Skip Archiving: Simulates normal disk space usage to verify that the script performs no action.
+2）Skip Archiving: Simulates normal disk space usage to verify that the script performs no action.
 
-Error Handling: Simulates passing a non-existent directory to verify that the script exits with an error.
+3）Error Handling: Simulates passing a non-existent directory to verify that the script exits with an error.
 
-LZMA Compression: Verifies that the script correctly uses the lzma algorithm when the corresponding environment variable is set.
+4）LZMA Compression: Verifies that the script correctly uses the lzma algorithm when the corresponding environment variable is set.
 
 ## How to Run
 ### Running the Main Script (clean_log.sh)
-Bash
-download
-content_copy
-expand_less
+
 # Usage: ./clean_log.sh <target_directory> [threshold_percentage] [backup_directory]
 # Example: Monitor the 'log' directory with a threshold of 80% and back up to 'backup'
 ./clean_log.sh ./log 80 ./backup
