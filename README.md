@@ -1,9 +1,9 @@
 
-#Experiment 1: Linux Log Archiving and Monitoring Script
+# Experiment 1: Linux Log Archiving and Monitoring Script
 
 This project is an experimental assignment for a Computer Architecture course, which includes two core Shell scripts.
 
-##Script Functionality
+## Script Functionality
 
 1. clean_log.sh:
 
@@ -29,8 +29,8 @@ Error Handling: Simulates passing a non-existent directory to verify that the sc
 
 LZMA Compression: Verifies that the script correctly uses the lzma algorithm when the corresponding environment variable is set.
 
-##How to Run
-###Running the Main Script (clean_log.sh)
+## How to Run
+### Running the Main Script (clean_log.sh)
 Bash
 download
 content_copy
