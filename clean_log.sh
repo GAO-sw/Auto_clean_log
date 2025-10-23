@@ -47,7 +47,7 @@ echo "Current disk partition usage: $CURRENT_USAGE%"
 if [ "$CURRENT_USAGE" -ge "$THRESHOLD" ]; then
     echo "Usage exceeds the threshold. Starting cleanup process..."
 
-    #计算需要释放的确切空间大小 (单位KB)。
+    #计算需要释放的确切空间大小
     DISK_INFO_LINE=$(df -k "$LOG_DIR" | tail -n 1)
     TOTAL_SPACE_KB=$(echo "$DISK_INFO_LINE" | awk '{print $2}')
     USED_SPACE_KB=$(echo "$DISK_INFO_LINE" | awk '{print $3}')
@@ -60,7 +60,7 @@ if [ "$CURRENT_USAGE" -ge "$THRESHOLD" ]; then
     
     echo "Need to free at least $(printf "%.2f" $(echo "$BYTES_TO_FREE_KB/1024" | bc -l)) MB of space."
 
-    # 查找文件，按修改时间排序 (从最旧到最新)，并将结果存入数组。
+    # 查找文件，按修改时间排序 从最旧到最新，并将结果存入数组。
     
     mapfile -t FILES_TO_ARCHIVE < <(find "$LOG_DIR" -maxdepth 1 -type f -printf "%T@ %p\n" | sort -n | cut -d' ' -f2-)
 
@@ -78,7 +78,7 @@ if [ "$CURRENT_USAGE" -ge "$THRESHOLD" ]; then
         SELECTED_FILES+=("$file")
     done
     
-    # --- 执行归档和删除
+    # 执行归档和删除
 
     # 如果没有文件被选中，则退出。
     
@@ -122,7 +122,7 @@ fi
 
 
 
-    #检查上一条命令 (tar) 是否成功执行。($? == 0 代表成功)
+    #检查上一条命令是否成功执行。
     
     if [ $? -eq 0 ]; then
         echo "Archive created successfully. Deleting original files..."
