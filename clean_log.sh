@@ -92,7 +92,6 @@ if [ "$CURRENT_USAGE" -ge "$THRESHOLD" ]; then
     #                                                 第四部分
     #基于当前日期和时间创建唯一的归档文件名。
     
-# --- 替换后的代码 ---
 
 # 首先，根据环境变量决定使用哪种压缩算法和文件后缀
 if [ "$LAB1_MAX_COMPRESSION" == "1" ]; then
