@@ -3,7 +3,7 @@ LOG_DIR=$1
 
 THRESHOLD=${2:-70}
 
-BACKUP_DIR="./backup"
+BACKUP_DIR=${3:-"./backup"}
 
 
 #                                           第二部分
@@ -44,15 +44,19 @@ echo "Current disk partition usage: $CURRENT_USAGE%"
 
 # 检查当前使用率是否大于阈值。
 
-if [ "$CURRENT_USAGE" -gt "$THRESHOLD" ]; then
+if [ "$CURRENT_USAGE" -ge "$THRESHOLD" ]; then
     echo "Usage exceeds the threshold. Starting cleanup process..."
 
     #计算需要释放的确切空间大小 (单位KB)。
-    DISK_INFO=$(df --output=size,used "$LOG_DIR" | tail -n 1)
-    TOTAL_SPACE_KB=$(echo $DISK_INFO | awk '{print $1}')
-    USED_SPACE_KB=$(echo $DISK_INFO | awk '{print $2}')
+    DISK_INFO_LINE=$(df -k "$LOG_DIR" | tail -n 1)
+    TOTAL_SPACE_KB=$(echo "$DISK_INFO_LINE" | awk '{print $2}')
+    USED_SPACE_KB=$(echo "$DISK_INFO_LINE" | awk '{print $3}')
     TARGET_USED_KB=$((TOTAL_SPACE_KB * THRESHOLD / 100))
     BYTES_TO_FREE_KB=$((USED_SPACE_KB - TARGET_USED_KB))
+    if [ "$BYTES_TO_FREE_KB" -le 0 ]; then
+        echo "Disk usage threshold met, but calculated freeable space is zero or negative. No action required."
+        BYTES_TO_FREE_KB=1
+    fi
     
     echo "Need to free at least $(printf "%.2f" $(echo "$BYTES_TO_FREE_KB/1024" | bc -l)) MB of space."
 
@@ -88,14 +92,36 @@ if [ "$CURRENT_USAGE" -gt "$THRESHOLD" ]; then
     #                                                 第四部分
     #基于当前日期和时间创建唯一的归档文件名。
     
-    ARCHIVE_NAME="backup_$(date +%Y-%m-%d_%H-%M-%S).tar.gz"
-    FULL_ARCHIVE_PATH="$BACKUP_DIR/$ARCHIVE_NAME"
+# --- 替换后的代码 ---
+
+# 首先，根据环境变量决定使用哪种压缩算法和文件后缀
+if [ "$LAB1_MAX_COMPRESSION" == "1" ]; then
+    # 情况A：环境变量被设置，使用 lzma 高强度压缩
+    echo "High compression mode (lzma) enabled by environment variable."
     
+    # 文件名后缀用 .tar.xz，这是 lzma/xz 压缩的惯例
+    ARCHIVE_NAME="backup_$(date +%Y-%m-%d_%H-%M-%S).tar.xz"
+    FULL_ARCHIVE_PATH="$BACKUP_DIR/$ARCHIVE_NAME"
     echo "Creating archive: $FULL_ARCHIVE_PATH"
     
-    # 用 'tar' 命令打包并压缩选定的文件。(-c: 创建, -z: gzip压缩, -f: 指定文件名)
-   
+    # 使用 -J 参数来告诉 tar 使用 xz (lzma) 算法
+    # -c: create, -J: xz/lzma, -f: file
+    tar -cJf "$FULL_ARCHIVE_PATH" --absolute-names "${SELECTED_FILES[@]}"
+else
+    # 情况B：环境变量未设置，使用默认的 gzip 压缩
+    echo "Default compression mode (gzip) is being used."
+    
+    # 文件名后缀是 .tar.gz
+    ARCHIVE_NAME="backup_$(date +%Y-%m-%d_%H-%M-%S).tar.gz"
+    FULL_ARCHIVE_PATH="$BACKUP_DIR/$ARCHIVE_NAME"
+    echo "Creating archive: $FULL_ARCHIVE_PATH"
+    
+    # 使用 -z 参数来告诉 tar 使用 gzip 算法
+    # -c: create, -z: gzip, -f: file
     tar -czf "$FULL_ARCHIVE_PATH" --absolute-names "${SELECTED_FILES[@]}"
+fi
+
+
 
     #检查上一条命令 (tar) 是否成功执行。($? == 0 代表成功)
     
